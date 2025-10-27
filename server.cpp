@@ -1,15 +1,88 @@
 #include "server.h"
 
+// Server Constructor and Destructor
 Server::Server() {
     NumToGuess = 8; // Just for testing purposes.
-	createMailSlot();
+	activeGame = true;
+    createMailSlot();
+
+}
+Server::~Server() {
+	// Close Threads and handles
+    if (listenerThread.joinable()) {
+        listenerThread.join();
+    }
+    CloseHandle(serverSlot);
 }
 
+// Game Processsing Stuff
+void Server::registerPlayer(std::string msg) {
+    // Implementation for registering a player
+    // This function would add the player to the playerMap
+    // and perform any other necessary initialization.
+    
+    // Parsing Player Address then Name to Map Unique IDs.
+	int playerID = -1;
+
+    // Int Address of Player is the ID for now.
+
+    std::string slotName = "\\\\.\\mailslot\\" + msg;
+	LPCSTR lpcSlotName = slotName.c_str();
+    HANDLE playerMailslot = CreateFileA(
+        lpcSlotName,           // mailslot name
+        GENERIC_WRITE,        // write access
+        FILE_SHARE_READ,      // share mode
+        NULL,                 // default security attributes
+        OPEN_EXISTING,        // opens existing mailslot
+        FILE_ATTRIBUTE_NORMAL,// normal attributes
+		NULL);                // no template file
+    
+    if(playerMailslot == INVALID_HANDLE_VALUE) {
+        std::cout << "Failed to create mailslot. Error: " << GetLastError() << "\n";
+        return;
+    }
+    std::cout << "Player's mailslot created successfully!\n";
+	// Getting the key to the map
+    // find the underscore
+	int i = 0;
+    while (i < msg.size() && msg[i] != '_') {
+        i++;
+    }
+	// everything after '_' is the address.
+    std::string addrPart = "";
+    if (i < msg.size() + 1) {
+        addrPart = msg.substr(i + 1);  // skip the '_'
+    }
+    
+	// Add to map using addressInt as key and mailslot handle as value
+	playerMap[addrPart] = playerMailslot;
+	cout << "Registered player with ID: " << addrPart << "\n";
+    writeToPlayer(addrPart, "Welcome to the game!");
+}
+void Server::writeToPlayer(string playerID, std::string msg)
+{
+	// Get the player's mailslot handle from the map
+    DWORD bytesWritten;
+    BOOL result = WriteFile(
+        playerMap[playerID],           // handle to mailslot
+        msg.c_str(),         // message to write
+        msg.size() + 1,      // size of message including null terminator
+        &bytesWritten,       // number of bytes written
+        NULL);               // not overlapped
+    if (!result) {
+        std::cout << "Failed to write to player mailslot. Error: " << GetLastError() << "\n";
+    }
+    else {
+        std::cout << "Message sent to player: " << msg << "\n";
+    }
+}
+
+// MailSlot Proccessing Stuff
 void Server::createMailSlot() {
     slotName = "\\\\.\\mailslot\\ServerSlot";
 
     // Create the mailslot
-    serverSlot = CreateMailslotA(
+    serverHandle = CreateMailslotA(
         slotName,              // mailslot name
         0,                     // no max message size (0 = any)
         MAILSLOT_WAIT_FOREVER, // wait time
@@ -21,5 +94,67 @@ void Server::createMailSlot() {
     }
 
     std::cout << "Server mailslot created successfully!\n";
-    // Keep program open for now
+	// Start listener thread
+	listenerThread = std::thread(&Server::mailslotListener, this);
+}
+void Server::ProcessNewMessage(std::string msg) {
+	// Implementation for processing new messages
+	// Depending on first char of msg, decide what type of msg it is.
+    if (msg[0] == 'G') {
+        // Guess message
+        std::string guessStr = msg.substr(1);
+        int guess = std::stoi(guessStr);
+        
+		// Conncet Here a ring buffer to store guesses. For now, just show the guess is here.
+        std::cout << "Received guess: " << guess << "\n";
+	}
+    else if(msg[0] == 'R') {
+        // Register message
+        // Handled in registerPlayer
+		std::string regInfo = msg.substr(1);
+		registerPlayer(regInfo);
+	}    
+}
+
+// THREAD: to listen for msgs in server mailslot.
+void Server::mailslotListener() {
+    char buffer[512];
+    DWORD bytesRead;
+
+    while (activeGame) {
+        // Check if there are messages waiting
+        DWORD nextSize, messageCount;
+        BOOL success = GetMailslotInfo(serverHandle, NULL, &nextSize, &messageCount, NULL);
+
+        if (!success) {
+            // std::cerr << "GetMailslotInfo failed: " << GetLastError() << std::endl;
+            break;
+        }
+
+        // If there are messages, read them
+        while (messageCount > 0) {
+            if (nextSize != MAILSLOT_NO_MESSAGE) {
+                DWORD bytesReadActual;
+                BOOL readOk = ReadFile(serverHandle, buffer, sizeof(buffer) - 1, &bytesReadActual, NULL);
+                if (readOk) {
+                    buffer[bytesReadActual] = '\0'; // null-terminate
+                    // std::cout << "Received: " << buffer << std::endl;
+
+					// Process the message
+                    std::string msg(buffer, bytesReadActual);
+                    ProcessNewMessage(msg);
+                }
+                else {
+                    // std::cerr << "ReadFile failed: " << GetLastError() << std::endl;
+                }
+            }
+
+            // Check again for more messages
+            success = GetMailslotInfo(serverHandle, NULL, &nextSize, &messageCount, NULL);
+            if (!success) { break; }
+        }
+
+        Sleep(100); // prevent CPU overuse
+    }
+    // std::cout << "Listener thread ending.\n";
 }
