@@ -63,7 +63,13 @@ void Player::registerToServer() {
     SendMessageToS(registrationMsg);
 
 	// Next: Start listener thread
-    listenerThread = std::thread(&Player::listenToServer, this);
+	// TO-DO: Start input thread as well
+    // KNOWN BUG: Input thread causing issues not allowing input,
+	// should figure out what causes it, but I think that it's the 
+	// Press anykey to continue prompt from Visual Studio that 
+    // causes this to not work at all expecting prog to end.
+	listenerThread = std::thread(&Player::listenToServer, this);
+	inputThread = std::thread(&Player::getInputFromUser, this);
 }
 void Player::SendMessageToS(std::string msg) {
 
@@ -81,6 +87,7 @@ void Player::SendMessageToS(std::string msg) {
     }
 }
 
+// Receive Stuff
 void Player::ProcessNewMessage(std::string msg) {
     // Implementation for processing new messages from server
     std::cout << "Message from server: " << msg << std::endl;
@@ -130,6 +137,8 @@ void Player::listenToServer() {
 
 
 }
+
+// TO-DO: Implement user input handling
 void Player::getInputFromUser() {
     // Implementation for getting user input
     while (true) {
