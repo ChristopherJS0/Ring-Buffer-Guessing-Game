@@ -103,10 +103,15 @@ void Server::ProcessNewMessage(std::string msg) {
     if (msg[0] == 'G') {
         // Guess message
         std::string guessStr = msg.substr(1);
-        int guess = std::stoi(guessStr);
-        
-		// Conncet Here a ring buffer to store guesses. For now, just show the guess is here.
-        std::cout << "Received guess: " << guess << "\n";
+        try {
+			int guess = std::stoi(guessStr);
+			// Process the guess
+			cout << "Received guess: " << guess << "\n";
+        }
+        catch(...) {
+            // Handle invalid guess
+			cout << "Invalid guess received: " << guessStr << "\n";
+		}
 	}
     else if(msg[0] == 'R') {
         // Register message
@@ -157,4 +162,12 @@ void Server::mailslotListener() {
         Sleep(100); // prevent CPU overuse
     }
     // std::cout << "Listener thread ending.\n";
+}
+
+// Misc. Functions for Processing Stuff
+bool Server::IsValidInt(std::string& intMsg) {
+    if (intMsg.empty()) return false;
+
+    
+    return true;
 }
