@@ -26,13 +26,11 @@ struct Server {
 
 
 private:
-	LPCSTR slotName;
 	HANDLE serverSlot;
 	int NumToGuess;
 	ringBuffer guessBuffer;
 	map<string, HANDLE> playerMap;
 	bool activeGame;
-
 
 	// Threads
 	HANDLE serverHandle;

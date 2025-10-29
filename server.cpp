@@ -4,13 +4,14 @@
 Server::Server() {
     NumToGuess = 8; // Just for testing purposes.
 	activeGame = true;
+	serverHandle = INVALID_HANDLE_VALUE;
 }
 Server::~Server() {
 	// Close Threads and handles
     if (listenerThread.joinable()) {
         listenerThread.join();
     }
-    CloseHandle(serverSlot);
+    CloseHandle(serverHandle);
 }
 
 // Game Processsing Stuff
@@ -77,7 +78,7 @@ void Server::writeToPlayer(string playerID, std::string msg)
 
 // MailSlot Proccessing Stuff
 bool Server::createMailSlot() {
-    slotName = "\\\\.\\mailslot\\ServerSlot";
+    LPCSTR slotName = "\\\\.\\mailslot\\ServerSlot";
 
     // Create the mailslot
     serverHandle = CreateMailslotA(
@@ -86,7 +87,7 @@ bool Server::createMailSlot() {
         MAILSLOT_WAIT_FOREVER, // wait time
         NULL);                 // default security attributes
 
-    if (serverSlot == INVALID_HANDLE_VALUE) {
+    if (serverHandle == INVALID_HANDLE_VALUE) {
         std::cout << "Failed to create mailslot. Error: " << GetLastError() << "\n";
         return false;
     }
@@ -118,7 +119,6 @@ void Server::ProcessNewMessage(std::string msg) {
 		registerPlayer(regInfo);
 	}    
 }
-
 
 // THREAD: to listen for msgs in server mailslot.
 void Server::mailslotListener() {

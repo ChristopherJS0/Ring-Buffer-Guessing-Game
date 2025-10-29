@@ -3,10 +3,6 @@
 Player::Player() {
     NameAndMailSlot();
 	// Send playere to server or perform other initialization as needed
-    if (registerToServer()) {
-        startListenerThread();
-		startInputThread();
-    }
 }
 Player::~Player() {
     CloseHandle(clientSlot);
@@ -88,20 +84,21 @@ bool Player::SendMessageToS(std::string& msg) {
     }
 }
 
-
 // Receive Stuff
 void Player::ProcessNewMessage(std::string msg) {
     // Implementation for processing new messages from server
-    std::cout << "Message from server -> " << msg << std::endl;
+    // std::cout << "Message from server -> " << msg << std::endl;
 
 	// If msg is W, it's a win message
     if (msg[0] == 'W' && msg.size() == 1) {
         std::cout << "I WON THE GAME WOW!" << std::endl;
+        active = false;
         return;
 	}
 	// If msg is L, it's a lose message
-    if (msg[0] == 'L' && msg.size() == 1) {
+    else if (msg[0] == 'L' && msg.size() == 1) {
         std::cout << "I lost... oh well." << std::endl;
+        active = false;
     }
 }
 

@@ -13,5 +13,6 @@ int main() {
 		cout << "Mailslot for server failed to create. Aborting server process.";
 	}
 	// Don't close the window immediately
+	system("pause");
 	return 0;
 }
