@@ -17,12 +17,14 @@ struct Server {
 	void writeToPlayer(string playerID, std::string msg);
 
 	// MailSlot Processing Stuff
-	void createMailSlot();
+	bool createMailSlot();
 	void ProcessNewMessage(std::string msg);
 	void mailslotListener();
-	
-	// Misc. Functions
-	bool IsValidInt(std::string& str);
+
+	// Thread Starters
+	void startListenerThread();
+
+
 private:
 	LPCSTR slotName;
 	HANDLE serverSlot;

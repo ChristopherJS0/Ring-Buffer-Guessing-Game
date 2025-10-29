@@ -4,8 +4,6 @@
 Server::Server() {
     NumToGuess = 8; // Just for testing purposes.
 	activeGame = true;
-    createMailSlot();
-
 }
 Server::~Server() {
 	// Close Threads and handles
@@ -78,7 +76,7 @@ void Server::writeToPlayer(string playerID, std::string msg)
 }
 
 // MailSlot Proccessing Stuff
-void Server::createMailSlot() {
+bool Server::createMailSlot() {
     slotName = "\\\\.\\mailslot\\ServerSlot";
 
     // Create the mailslot
@@ -90,12 +88,11 @@ void Server::createMailSlot() {
 
     if (serverSlot == INVALID_HANDLE_VALUE) {
         std::cout << "Failed to create mailslot. Error: " << GetLastError() << "\n";
-        return;
+        return false;
     }
 
     std::cout << "Server mailslot created successfully!\n";
-	// Start listener thread
-	listenerThread = std::thread(&Server::mailslotListener, this);
+    return true;
 }
 void Server::ProcessNewMessage(std::string msg) {
 	// Implementation for processing new messages
@@ -103,6 +100,7 @@ void Server::ProcessNewMessage(std::string msg) {
     if (msg[0] == 'G') {
         // Guess message
         std::string guessStr = msg.substr(1);
+
         try {
 			int guess = std::stoi(guessStr);
 			// Process the guess
@@ -120,6 +118,7 @@ void Server::ProcessNewMessage(std::string msg) {
 		registerPlayer(regInfo);
 	}    
 }
+
 
 // THREAD: to listen for msgs in server mailslot.
 void Server::mailslotListener() {
@@ -164,10 +163,6 @@ void Server::mailslotListener() {
     // std::cout << "Listener thread ending.\n";
 }
 
-// Misc. Functions for Processing Stuff
-bool Server::IsValidInt(std::string& intMsg) {
-    if (intMsg.empty()) return false;
-
-    
-    return true;
+void Server::startListenerThread() {
+    listenerThread = std::thread(&Server::mailslotListener, this);
 }

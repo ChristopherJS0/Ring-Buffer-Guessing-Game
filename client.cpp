@@ -3,7 +3,10 @@
 Player::Player() {
     NameAndMailSlot();
 	// Send playere to server or perform other initialization as needed
-	registerToServer();
+    if (registerToServer()) {
+        startListenerThread();
+		startInputThread();
+    }
 }
 Player::~Player() {
     CloseHandle(clientSlot);
@@ -44,7 +47,7 @@ void Player::NameAndMailSlot() {
     }
     std::cout << playerName << "'s mailslot created successfully!\n";
 }
-void Player::registerToServer() {
+bool Player::registerToServer() {
 	// Implementation for registering to the server
 	std::string registrationMsg = "R" + playerName + "_" +
         std::to_string(reinterpret_cast<uintptr_t>(&playerName));
@@ -61,11 +64,11 @@ void Player::registerToServer() {
 
     if (serverSlot == INVALID_HANDLE_VALUE) {
         std::cout << "Failed to open server mailslot. Error: " << GetLastError() << "\n";
-        return;
+        return false;
     }
-    SendMessageToS(registrationMsg);
+    if (SendMessageToS(registrationMsg)) return true;
 }
-void Player::SendMessageToS(std::string msg) {
+bool Player::SendMessageToS(std::string& msg) {
 
     DWORD bytesWritten;
     BOOL result = WriteFile(
@@ -76,30 +79,47 @@ void Player::SendMessageToS(std::string msg) {
         NULL);               // not overlapped
     if (!result) {
         std::cout << "Failed to write to server mailslot. Error: " << GetLastError() << "\n";
-    } else {
+		return false;
+    } 
+    else {
         std::cout << "Message sent to server: " << msg << "\n";
+		active = true;
+		return true;
     }
 }
+
 
 // Receive Stuff
 void Player::ProcessNewMessage(std::string msg) {
     // Implementation for processing new messages from server
-    std::cout << "Message from server: " << msg << std::endl;
+    std::cout << "Message from server -> " << msg << std::endl;
+
+	// If msg is W, it's a win message
+    if (msg[0] == 'W' && msg.size() == 1) {
+        std::cout << "I WON THE GAME WOW!" << std::endl;
+        return;
+	}
+	// If msg is L, it's a lose message
+    if (msg[0] == 'L' && msg.size() == 1) {
+        std::cout << "I lost... oh well." << std::endl;
+    }
 }
 
 // THREAD functions
+//  Starters
 void Player::startListenerThread() {
 	listenerThread = std::thread(&Player::listenToServer, this);
 }
 void Player::startInputThread() {
     inputThread = std::thread(&Player::getInputFromUser, this);
 }
+
 void Player::listenToServer() {
     // Implementation for listening to server messages
     char buffer[512];
     DWORD bytesRead;
 
-    while (true) {
+    while (active) {
         // Check if there are messages waiting
         DWORD nextSize, messageCount;
         BOOL success = GetMailslotInfo(clientSlot, NULL, &nextSize, &messageCount, NULL);
@@ -134,19 +154,16 @@ void Player::listenToServer() {
 
         Sleep(100); // prevent CPU overuse
     }
-
-
 }
-
-// TO-DO: Implement user input handling
 void Player::getInputFromUser() {
     // Implementation for getting user input
-    while (true) {
+    while (active) {
         std::string userInput;
         std::cout << "Enter your guess: ";
         std::getline(std::cin, userInput);
         if (!userInput.empty()) {
-            std::string guessMsg = "G" + userInput;
+            // G = Guess, ID, and Guess
+            std::string guessMsg = "G" + playerID + "_" + userInput;
             SendMessageToS(guessMsg);
         }
 	}

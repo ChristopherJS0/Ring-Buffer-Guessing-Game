@@ -15,8 +15,8 @@ public:
 	//Mailslot Stuff
 		// Send Stuff
 	void NameAndMailSlot();
-	void registerToServer();
-	void SendMessageToS(std::string msg);
+	bool registerToServer();
+	bool SendMessageToS(std::string& msg);
 
 		// Receive Stuff
 	void ProcessNewMessage(std::string msg);
@@ -37,6 +37,7 @@ private:
 	std::string playerID;
 
 	// Threads
+	bool active;
 	std::thread listenerThread;
 	std::thread inputThread;
 
