@@ -103,14 +103,6 @@ void Player::ProcessNewMessage(std::string msg) {
 }
 
 // THREAD functions
-//  Starters
-void Player::startListenerThread() {
-	listenerThread = std::thread(&Player::listenToServer, this);
-}
-void Player::startInputThread() {
-    inputThread = std::thread(&Player::getInputFromUser, this);
-}
-
 void Player::listenToServer() {
     // Implementation for listening to server messages
     char buffer[512];

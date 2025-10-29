@@ -19,11 +19,9 @@ struct Server {
 	// MailSlot Processing Stuff
 	bool createMailSlot();
 	void ProcessNewMessage(std::string msg);
+	
+	// Thread Functions
 	void mailslotListener();
-
-	// Thread Starters
-	void startListenerThread();
-
 
 private:
 	HANDLE serverSlot;

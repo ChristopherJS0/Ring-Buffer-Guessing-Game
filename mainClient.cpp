@@ -7,8 +7,10 @@ int main() {
 	cout << "Starting the client...\n";
 	Player player1;
 	if (player1.registerToServer()) {
-		player1.startListenerThread();
-		player1.startInputThread();
+		std::thread listenerThread = std::thread(&Player::listenToServer, &player1);
+		std::thread inputThread = std::thread(&Player::getInputFromUser, &player1);
+		listenerThread.join();
+		inputThread.join();
 	}
 	else {
 		cout << "Failed to register to server. Aborting client process.";

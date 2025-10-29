@@ -8,9 +8,6 @@ Server::Server() {
 }
 Server::~Server() {
 	// Close Threads and handles
-    if (listenerThread.joinable()) {
-        listenerThread.join();
-    }
     CloseHandle(serverHandle);
 }
 
@@ -161,8 +158,4 @@ void Server::mailslotListener() {
         Sleep(100); // prevent CPU overuse
     }
     // std::cout << "Listener thread ending.\n";
-}
-
-void Server::startListenerThread() {
-    listenerThread = std::thread(&Server::mailslotListener, this);
 }

@@ -22,13 +22,9 @@ public:
 	void ProcessNewMessage(std::string msg);
 
 	// Thread functions
-	void startListenerThread();
-	void startInputThread();
-
 	void listenToServer();
 	void getInputFromUser();
 
-	//Misc. Functions
 
 private:
 	HANDLE clientSlot;
