@@ -23,6 +23,7 @@ void Server::registerPlayer(std::string msg) {
     // Int Address of Player is the ID for now.
 
     std::string slotName = "\\\\.\\mailslot\\" + msg;
+
 	LPCSTR lpcSlotName = slotName.c_str();
     HANDLE playerMailslot = CreateFileA(
         lpcSlotName,           // mailslot name
@@ -98,16 +99,7 @@ void Server::ProcessNewMessage(std::string msg) {
     if (msg[0] == 'G') {
         // Guess message
         std::string guessStr = msg.substr(1);
-
-        try {
-			int guess = std::stoi(guessStr);
-			// Process the guess
-			cout << "Received guess: " << guess << "\n";
-        }
-        catch(...) {
-            // Handle invalid guess
-			cout << "Invalid guess received: " << guessStr << "\n";
-		}
+		ProcessGuess(guessStr);
 	}
     else if(msg[0] == 'R') {
         // Register message
@@ -115,6 +107,41 @@ void Server::ProcessNewMessage(std::string msg) {
 		std::string regInfo = msg.substr(1);
 		registerPlayer(regInfo);
 	}    
+}
+// Getting the ID from msg
+void Server::ProcessGuess(std::string& msg) {
+
+    std::string playerID = getIDFromMsg(msg); // Now msg only contains the guess part
+	if (playerMap[playerID] == INVALID_HANDLE_VALUE) {
+        cout << "Received guess from unregistered player ID: " << playerID << "\n";
+        cout << "Size of pMap: " << playerMap.size();
+        return;
+	}
+
+    try {
+        int guess = std::stoi(msg);
+        // Process the guess
+        cout << "Player " << playerID << " guessed: " << guess << "\n";
+    }
+    catch(...) {
+        // Handle invalid guess
+        cout << "Invalid guess received from player " << playerID << ": " << msg << "\n";
+    }
+}
+
+// Getting the guess from msg
+std::string Server::getIDFromMsg(std::string& msg) {
+    // Assuming msg format is "G<ID>_<Guess>"
+    char iter;
+	string id = "";
+    int ind = 0;
+    while (ind < msg.size() && msg[ind] != '_') {
+        iter = msg[ind];
+		id += iter;
+        ind++;
+	}
+	msg = msg.substr(ind + 1); // Update msg to only contain the guess part
+    return id;
 }
 
 // THREAD: to listen for msgs in server mailslot.
@@ -159,3 +186,5 @@ void Server::mailslotListener() {
     }
     // std::cout << "Listener thread ending.\n";
 }
+
+

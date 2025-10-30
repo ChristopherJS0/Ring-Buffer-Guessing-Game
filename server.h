@@ -19,7 +19,11 @@ struct Server {
 	// MailSlot Processing Stuff
 	bool createMailSlot();
 	void ProcessNewMessage(std::string msg);
-	
+	void ProcessGuess(std::string& msg);
+
+	// Getting the ID from msg
+	std::string getIDFromMsg(std::string& msg);
+
 	// Thread Functions
 	void mailslotListener();
 

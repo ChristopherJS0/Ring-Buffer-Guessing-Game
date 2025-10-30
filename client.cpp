@@ -88,7 +88,7 @@ bool Player::SendMessageToS(std::string& msg) {
 void Player::ProcessNewMessage(std::string msg) {
     // Implementation for processing new messages from server
     // std::cout << "Message from server -> " << msg << std::endl;
-
+    std:: cout << "Message from server is: " << msg << std::endl;
 	// If msg is W, it's a win message
     if (msg[0] == 'W' && msg.size() == 1) {
         std::cout << "I WON THE GAME WOW!" << std::endl;
