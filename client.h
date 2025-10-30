@@ -34,7 +34,4 @@ private:
 
 	// Threads
 	bool active;
-	std::thread listenerThread;
-	std::thread inputThread;
-
 };

@@ -7,12 +7,6 @@ Player::Player() {
 Player::~Player() {
     CloseHandle(clientSlot);
 	CloseHandle(serverSlot);
-    if (listenerThread.joinable()) {
-        listenerThread.join();
-	}
-    if (inputThread.joinable()) {
-        inputThread.join();
-	}
 }
 
 // Game Processsing Stuff

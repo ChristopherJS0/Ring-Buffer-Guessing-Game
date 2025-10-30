@@ -4,6 +4,7 @@
 #include <map>
 #include <random>
 #include <thread>
+#include <set>
 #include <Windows.h>
 #include "ringBuffer.h"
 
@@ -20,9 +21,11 @@ struct Server {
 	bool createMailSlot();
 	void ProcessNewMessage(std::string msg);
 	void ProcessGuess(std::string& msg);
+	void messageAllLosers(std::string winnerID);
+
 
 	// Getting the ID from msg
-	std::string getIDFromMsg(std::string& msg);
+	std::string getIdFromMsg(std::string& msg);
 
 	// Thread Functions
 	void mailslotListener();
@@ -32,6 +35,7 @@ private:
 	int NumToGuess;
 	ringBuffer guessBuffer;
 	map<string, HANDLE> playerMap;
+	set<string> players;
 	bool activeGame;
 
 	// Threads

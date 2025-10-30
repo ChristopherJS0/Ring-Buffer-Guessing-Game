@@ -16,9 +16,6 @@ void Server::registerPlayer(std::string msg) {
     // Implementation for registering a player
     // This function would add the player to the playerMap
     // and perform any other necessary initialization.
-    
-    // Parsing Player Address then Name to Map Unique IDs.
-	int playerID = -1;
 
     // Int Address of Player is the ID for now.
 
@@ -53,15 +50,25 @@ void Server::registerPlayer(std::string msg) {
     
 	// Add to map using addressInt as key and mailslot handle as value
 	playerMap[addrPart] = playerMailslot;
-	cout << "Registered player with ID: " << addrPart << "\n";
+    
+	players.insert(addrPart);
+	cout << "Registered player with ID:" << addrPart << "\n";
     writeToPlayer(addrPart, "Welcome to the game!");
 }
 void Server::writeToPlayer(string playerID, std::string msg)
 {
+	// extra verification to ensure player exists
+    if (playerMap.find(playerID) == playerMap.end()) {
+        std::cout << "Player ID not found in map: " << playerID << "\n";
+        std::cout << "wTP: Size of pMap: " << playerMap.size();
+        return;
+	}
+    
+
 	// Get the player's mailslot handle from the map
     DWORD bytesWritten;
     BOOL result = WriteFile(
-        playerMap[playerID],           // handle to mailslot
+        playerMap[playerID], // handle to mailslot
         msg.c_str(),         // message to write
         msg.size() + 1,      // size of message including null terminator
         &bytesWritten,       // number of bytes written
@@ -110,27 +117,47 @@ void Server::ProcessNewMessage(std::string msg) {
 }
 // Getting the ID from msg
 void Server::ProcessGuess(std::string& msg) {
+    std::string playerID = getIdFromMsg(msg); // Now msg only contains the guess part
 
-    std::string playerID = getIDFromMsg(msg); // Now msg only contains the guess part
-	if (playerMap[playerID] == INVALID_HANDLE_VALUE) {
+    if (players.find(playerID) != players.end()) {
         cout << "Received guess from unregistered player ID: " << playerID << "\n";
-        cout << "Size of pMap: " << playerMap.size();
         return;
 	}
+    cout << "Size of pMap: " << playerMap.size();
+
 
     try {
         int guess = std::stoi(msg);
         // Process the guess
         cout << "Player " << playerID << " guessed: " << guess << "\n";
+        if (guess == NumToGuess) {
+            writeToPlayer(playerID, "W"); // Correct
+            cout << "Player " << playerID << " guessed correctly!\n";
+        }
+        else {
+            writeToPlayer(playerID, "I"); // Incorrect
+            cout << "Player " << playerID << " guessed incorrectly.\n";
+		}
     }
     catch(...) {
         // Handle invalid guess
         cout << "Invalid guess received from player " << playerID << ": " << msg << "\n";
     }
 }
+// Message all players EXCEPT WINNER that they lost.
+void Server::messageAllLosers(std::string winnerID) {
+    for (const auto& pair : playerMap) {
+        if (pair.first != winnerID) {
+            writeToPlayer(pair.first, "L"); // Lose message
+        }
+        else {
+			writeToPlayer(pair.first, "W"); // Win message
+        }
+    }
+}
 
 // Getting the guess from msg
-std::string Server::getIDFromMsg(std::string& msg) {
+std::string Server::getIdFromMsg(std::string& msg) {
     // Assuming msg format is "G<ID>_<Guess>"
     char iter;
 	string id = "";
