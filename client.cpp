@@ -84,20 +84,16 @@ bool Player::SendMessageToS(std::string& msg) {
 // Receive Stuff
 void Player::ProcessNewMessage(std::string msg) {
     // Implementation for processing new messages from server
-    // std::cout << "Message from server -> " << msg << std::endl;
-    std:: cout << "Message from server is: " << msg << std::endl;
 	
     if (msg == "WIN") {
         std::cout << "I WON THE GAME WOW!" << std::endl;
         active = false;
-		std::cout << active << " is active state.\n";
         return;
 	}
 	// If msg is L, it's a lose message
     else if (msg == "LOSE") {
         std::cout << "I lost... oh well." << std::endl;
         active = false;
-        std::cout << active << " is active state.\n";
         return;
     }
 }

@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "..\Server\Server.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Player2", "..\Player2\Player2.vcxproj", "{6583180A-34C7-4A94-83C2-B84B07D5F58C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Player3", "..\Player3\Player3.vcxproj", "{4EECC269-F707-4FFB-A12F-E90395EC8835}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{6583180A-34C7-4A94-83C2-B84B07D5F58C}.Release|x64.Build.0 = Release|x64
 		{6583180A-34C7-4A94-83C2-B84B07D5F58C}.Release|x86.ActiveCfg = Release|Win32
 		{6583180A-34C7-4A94-83C2-B84B07D5F58C}.Release|x86.Build.0 = Release|Win32
+		{4EECC269-F707-4FFB-A12F-E90395EC8835}.Debug|x64.ActiveCfg = Debug|x64
+		{4EECC269-F707-4FFB-A12F-E90395EC8835}.Debug|x64.Build.0 = Debug|x64
+		{4EECC269-F707-4FFB-A12F-E90395EC8835}.Debug|x86.ActiveCfg = Debug|Win32
+		{4EECC269-F707-4FFB-A12F-E90395EC8835}.Debug|x86.Build.0 = Debug|Win32
+		{4EECC269-F707-4FFB-A12F-E90395EC8835}.Release|x64.ActiveCfg = Release|x64
+		{4EECC269-F707-4FFB-A12F-E90395EC8835}.Release|x64.Build.0 = Release|x64
+		{4EECC269-F707-4FFB-A12F-E90395EC8835}.Release|x86.ActiveCfg = Release|Win32
+		{4EECC269-F707-4FFB-A12F-E90395EC8835}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

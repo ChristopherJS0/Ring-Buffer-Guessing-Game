@@ -2,9 +2,10 @@
 
 // Server Constructor and Destructor
 Server::Server() {
-    NumToGuess = 8; // Just for testing purposes.
+	NumToGuess = rand() % 255 + 0; // Random number between 0 and 255
 	activeGame = true;
 	serverHandle = INVALID_HANDLE_VALUE;
+	std::cout << "Server starting up. Number to guess is: " << NumToGuess << "\n";
 }
 Server::~Server() {
 	// Close Threads and handles
@@ -111,7 +112,8 @@ void Server::ProcessNewMessage(std::string msg) {
     if (msg[0] == 'G') {
         // Guess message
         std::string guessStr = msg.substr(1);
-		ProcessGuess(guessStr);
+        int playerID = getIdFromMsg(guessStr); // Now msg only contains the guess part
+        ProcessGuess(guessStr, playerID);
 	}
     else if(msg[0] == 'R') {
         // Register message
@@ -121,9 +123,7 @@ void Server::ProcessNewMessage(std::string msg) {
 	}    
 }
 // Getting the ID from msg
-void Server::ProcessGuess(std::string& msg) {
-    int playerID = getIdFromMsg(msg); // Now msg only contains the guess part
-
+void Server::ProcessGuess(std::string& msg, int playerID) {
     try {
         int guess = std::stoi(msg);
         // Process the guess
@@ -220,4 +220,10 @@ void Server::mailslotListener() {
     std::cout << "Listener thread ending.\n";
 }
 
+
+void ringBufferPopper() {
+    // Implementation for popping from ring buffer
+    // This function would continuously check the ring buffer
+    // and process any guesses that have been added.
+}
 

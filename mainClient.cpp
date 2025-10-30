@@ -16,7 +16,6 @@ int main() {
 	else {
 		cout << "Failed to register to server. Aborting client process.";
 	}
-	
 
 	std::cout << "Client process ending.\n";
 	// Don't close the window immediately

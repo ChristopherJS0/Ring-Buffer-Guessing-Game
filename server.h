@@ -20,15 +20,16 @@ struct Server {
 	// MailSlot Processing Stuff
 	bool createMailSlot();
 	void ProcessNewMessage(std::string msg);
-	void ProcessGuess(std::string& msg);
+	void ProcessGuess(std::string& msg, int playerID);
 	void messageAllLosersAndWinner(int winnerID);
-
 
 	// Getting the ID from msg
 	int getIdFromMsg(std::string& msg);
 
 	// Thread Functions
 	void mailslotListener();
+	void ringBufferPopper();
+
 
 private:
 	int NumToGuess;
