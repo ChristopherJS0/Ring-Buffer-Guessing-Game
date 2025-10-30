@@ -19,9 +19,9 @@ void Player::NameAndMailSlot() {
 
 	//Mailslot = Playername + memoryAddress
     playerID = std::to_string(GetCurrentProcessId());
-    std::cout << playerID;
     std::string slotName = "\\\\.\\mailslot\\"
         + playerName + "_" + playerID;
+    std::cout << slotName << " is this players address.\n";
     LPCSTR lpcSlotName = slotName.c_str();
 
     // Create the mailslot

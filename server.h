@@ -15,27 +15,26 @@ struct Server {
 
 	// Game Processing Stuff
 	void registerPlayer(std::string msg);
-	void writeToPlayer(string playerID, std::string msg);
+	void writeToPlayer(int playerID, std::string msg);
 
 	// MailSlot Processing Stuff
 	bool createMailSlot();
 	void ProcessNewMessage(std::string msg);
 	void ProcessGuess(std::string& msg);
-	void messageAllLosers(std::string winnerID);
+	void messageAllLosers(int winnerID);
 
 
 	// Getting the ID from msg
-	std::string getIdFromMsg(std::string& msg);
+	int getIdFromMsg(std::string& msg);
 
 	// Thread Functions
 	void mailslotListener();
 
 private:
-	HANDLE serverSlot;
 	int NumToGuess;
 	ringBuffer guessBuffer;
-	map<string, HANDLE> playerMap;
-	set<string> players;
+	map<int, HANDLE> playerMap;
+	set<int> players;
 	bool activeGame;
 
 	// Threads
