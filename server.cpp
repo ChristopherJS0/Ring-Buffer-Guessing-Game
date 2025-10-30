@@ -129,8 +129,9 @@ void Server::ProcessGuess(std::string& msg) {
         // Process the guess
         cout << "Player " << playerID << " guessed: " << guess << "\n";
         if (guess == NumToGuess) {
-            writeToPlayer(playerID, "W"); // Correct
             cout << "Player " << playerID << " guessed correctly!\n";
+            activeGame = false;
+			messageAllLosersAndWinner(playerID);
         }
         else {
             writeToPlayer(playerID, "I"); // Incorrect
@@ -143,15 +144,16 @@ void Server::ProcessGuess(std::string& msg) {
     }
 }
 // Message all players EXCEPT WINNER that they lost.
-void Server::messageAllLosers(int winnerID) {
+void Server::messageAllLosersAndWinner(int winnerID) {
     for (const auto& pair : playerMap) {
         if (pair.first != winnerID) {
-            writeToPlayer(pair.first, "L"); // Lose message
+            writeToPlayer(pair.first, "LOSE"); // Lose message
         }
         else {
-			writeToPlayer(pair.first, "W"); // Win message
+			writeToPlayer(pair.first, "WIN"); // Win message
         }
     }
+	activeGame = false;
 }
 
 // Getting the guess from msg
@@ -217,7 +219,7 @@ void Server::mailslotListener() {
 
         Sleep(100); // prevent CPU overuse
     }
-    // std::cout << "Listener thread ending.\n";
+    std::cout << "Listener thread ending.\n";
 }
 
 

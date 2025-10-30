@@ -21,7 +21,7 @@ struct Server {
 	bool createMailSlot();
 	void ProcessNewMessage(std::string msg);
 	void ProcessGuess(std::string& msg);
-	void messageAllLosers(int winnerID);
+	void messageAllLosersAndWinner(int winnerID);
 
 
 	// Getting the ID from msg

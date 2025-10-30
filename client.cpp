@@ -1,6 +1,7 @@
 #include "client.h"
 // Player Constructor and Destructor
 Player::Player() {
+	active = true;
     NameAndMailSlot();
 	// Send playere to server or perform other initialization as needed
 }
@@ -55,7 +56,10 @@ bool Player::registerToServer() {
         std::cout << "Failed to open server mailslot. Error: " << GetLastError() << "\n";
         return false;
     }
-    if (SendMessageToS(registrationMsg)) return true;
+    if (SendMessageToS(registrationMsg)) {
+		active = true;
+        return true;
+    }
 }
 bool Player::SendMessageToS(std::string& msg) {
 
@@ -73,7 +77,6 @@ bool Player::SendMessageToS(std::string& msg) {
     } 
     else {
         std::cout << "Message sent to server: " << msg << "\n";
-		active = true;
 		return true;
     }
 }
@@ -84,15 +87,16 @@ void Player::ProcessNewMessage(std::string msg) {
     // std::cout << "Message from server -> " << msg << std::endl;
     std:: cout << "Message from server is: " << msg << std::endl;
 	// If msg is W, it's a win message
-    if (msg[0] == 'W' && msg.size() == 1) {
+    if (msg == "WIN") {
         std::cout << "I WON THE GAME WOW!" << std::endl;
         active = false;
         return;
 	}
 	// If msg is L, it's a lose message
-    else if (msg[0] == 'L' && msg.size() == 1) {
+    else if (msg == "LOSE") {
         std::cout << "I lost... oh well." << std::endl;
         active = false;
+        return;
     }
 }
 
@@ -126,7 +130,7 @@ void Player::listenToServer() {
                     ProcessNewMessage(msg);
                 }
                 else {
-                    // std::cerr << "ReadFile failed: " << GetLastError() << std::endl;
+                    std::cerr << "ReadFile failed: " << GetLastError() << std::endl;
                 }
             }
 
@@ -134,9 +138,9 @@ void Player::listenToServer() {
             success = GetMailslotInfo(clientSlot, NULL, &nextSize, &messageCount, NULL);
             if (!success) { break; }
         }
-
         Sleep(100); // prevent CPU overuse
     }
+	std::cout << "Stopped listening to server messages.\n";
 }
 void Player::getInputFromUser() {
     // Implementation for getting user input
@@ -150,4 +154,5 @@ void Player::getInputFromUser() {
             SendMessageToS(guessMsg);
         }
 	}
+	std::cout << "Stopped getting input from user.\n";
 }

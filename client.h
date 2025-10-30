@@ -32,6 +32,5 @@ private:
 	std::string playerName;
 	std::string playerID;
 
-	// Threads
 	bool active;
 };
