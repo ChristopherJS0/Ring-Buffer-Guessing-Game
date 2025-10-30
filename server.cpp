@@ -75,7 +75,7 @@ void Server::writeToPlayer(int playerID, std::string msg){
     BOOL result = WriteFile(
         playerMap[playerID], // handle to mailslot
         msg.c_str(),         // message to write
-        msg.size() + 1,      // size of message including null terminator
+        msg.size(),      // size of message including null terminator
         &bytesWritten,       // number of bytes written
         NULL);               // not overlapped
     if (!result) {
@@ -146,11 +146,11 @@ void Server::ProcessGuess(std::string& msg) {
 // Message all players EXCEPT WINNER that they lost.
 void Server::messageAllLosersAndWinner(int winnerID) {
     for (const auto& pair : playerMap) {
-        if (pair.first != winnerID) {
-            writeToPlayer(pair.first, "LOSE"); // Lose message
+        if (pair.first == winnerID) {
+            writeToPlayer(pair.first, "WIN"); // Lose message
         }
         else {
-			writeToPlayer(pair.first, "WIN"); // Win message
+			writeToPlayer(pair.first, "LOSE"); // Win message
         }
     }
 	activeGame = false;
@@ -193,7 +193,6 @@ void Server::mailslotListener() {
             // std::cerr << "GetMailslotInfo failed: " << GetLastError() << std::endl;
             break;
         }
-
         // If there are messages, read them
         while (messageCount > 0) {
             if (nextSize != MAILSLOT_NO_MESSAGE) {
@@ -208,7 +207,7 @@ void Server::mailslotListener() {
                     ProcessNewMessage(msg);
                 }
                 else {
-                    // std::cerr << "ReadFile failed: " << GetLastError() << std::endl;
+                    std::cerr << "ReadFile failed: " << GetLastError() << std::endl;
                 }
             }
 
@@ -216,7 +215,6 @@ void Server::mailslotListener() {
             success = GetMailslotInfo(serverHandle, NULL, &nextSize, &messageCount, NULL);
             if (!success) { break; }
         }
-
         Sleep(100); // prevent CPU overuse
     }
     std::cout << "Listener thread ending.\n";

@@ -67,7 +67,7 @@ bool Player::SendMessageToS(std::string& msg) {
     BOOL result = WriteFile(
         serverSlot,           // handle to mailslot
         msg.c_str(),         // message to write
-        msg.size() + 1,      // size of message including null terminator
+        msg.size()    ,      // size of message including null terminator
         &bytesWritten,       // number of bytes written
         NULL);               // not overlapped
 
@@ -86,16 +86,18 @@ void Player::ProcessNewMessage(std::string msg) {
     // Implementation for processing new messages from server
     // std::cout << "Message from server -> " << msg << std::endl;
     std:: cout << "Message from server is: " << msg << std::endl;
-	// If msg is W, it's a win message
+	
     if (msg == "WIN") {
         std::cout << "I WON THE GAME WOW!" << std::endl;
         active = false;
+		std::cout << active << " is active state.\n";
         return;
 	}
 	// If msg is L, it's a lose message
     else if (msg == "LOSE") {
         std::cout << "I lost... oh well." << std::endl;
         active = false;
+        std::cout << active << " is active state.\n";
         return;
     }
 }
