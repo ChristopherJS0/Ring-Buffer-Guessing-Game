@@ -64,7 +64,6 @@ void Server::writeToPlayer(string playerID, std::string msg)
         return;
 	}
     
-
 	// Get the player's mailslot handle from the map
     DWORD bytesWritten;
     BOOL result = WriteFile(

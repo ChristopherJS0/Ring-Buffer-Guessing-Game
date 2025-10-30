@@ -18,8 +18,8 @@ void Player::NameAndMailSlot() {
 	}
 
 	//Mailslot = Playername + memoryAddress
-    playerID = std::to_string(reinterpret_cast<uintptr_t>(&playerName));
-
+    playerID = std::to_string(GetCurrentProcessId());
+    std::cout << playerID;
     std::string slotName = "\\\\.\\mailslot\\"
         + playerName + "_" + playerID;
     LPCSTR lpcSlotName = slotName.c_str();
@@ -39,8 +39,7 @@ void Player::NameAndMailSlot() {
 }
 bool Player::registerToServer() {
 	// Implementation for registering to the server
-	std::string registrationMsg = "R" + playerName + "_" +
-        std::to_string(reinterpret_cast<uintptr_t>(&playerName));
+    std::string registrationMsg = "R" + playerName + "_" + playerID;
 
     LPCSTR address = "\\\\.\\mailslot\\ServerSlot";
     serverSlot = CreateFileA(
@@ -67,6 +66,7 @@ bool Player::SendMessageToS(std::string& msg) {
         msg.size() + 1,      // size of message including null terminator
         &bytesWritten,       // number of bytes written
         NULL);               // not overlapped
+
     if (!result) {
         std::cout << "Failed to write to server mailslot. Error: " << GetLastError() << "\n";
 		return false;
